@@ -1,6 +1,13 @@
 Release information and news:
 -----------------------------
 
+-- 2.2.1
+   - all files are now under the LGPL2 license
+   - Don't expose internal symbols
+   - Randomize read/write retry times on all platforms (use DC1394_SLOW_DOWN)
+   - Minor bug fixes
+   - Support POLL and WAIT capture on Windows.
+
 -- 2.2.0
    - Bug fixes:
        - minor memory leak in Juju
