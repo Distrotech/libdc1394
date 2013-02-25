@@ -33,7 +33,7 @@ endif
 
 
 if HAVE_MACOSX
-AM_LDFLAGS = -framework CoreFoundation -framework Carbon
+AM_LDFLAGS = -framework CoreFoundation
 endif
 
 noinst_PROGRAMS = $(A)

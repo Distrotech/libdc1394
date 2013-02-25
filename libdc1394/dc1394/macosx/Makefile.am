@@ -9,7 +9,7 @@ pkgmacosxinclude_HEADERS = \
 endif
 
 AM_CFLAGS = -I..
-libdc1394_macosx_la_LDFLAGS = -framework CoreFoundation -framework Carbon
+libdc1394_macosx_la_LDFLAGS = -framework CoreFoundation
 libdc1394_macosx_la_LIBADD = -lIOKit
 libdc1394_macosx_la_SOURCES =  \
 	control.c \
