@@ -3,7 +3,7 @@ AC_PREREQ([2.6.0])
 AC_INIT([libdc1394],[2.2.1],[libdc1394-devel@lists.sf.net])
 AC_CONFIG_SRCDIR([dc1394/control.c])
 AC_CONFIG_MACRO_DIR([m4])
-
+ 
 AC_CANONICAL_SYSTEM
 
 case "$host" in
