@@ -380,7 +380,7 @@ do_transaction(platform_camera_t * cam, int tcode, uint64_t offset,
     juju_response_info resp;
     int i, len;
     uint32_t in_buffer[in ? num_quads : 0];
-    int retry = 300;
+    int retry = DC1394_MAX_RETRIES;
 
     for (i = 0; in && i < num_quads; i++)
         in_buffer[i] = htonl (in[i]);
