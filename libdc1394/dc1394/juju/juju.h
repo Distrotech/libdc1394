@@ -48,6 +48,7 @@ struct _platform_camera_t {
     char filename[32];
     int generation;
     uint32_t node_id;
+    unsigned int kernel_abi_version;
     int max_response_quads;
     juju_iso_info *iso_resources;
     uint8_t header_size;
@@ -57,8 +58,8 @@ struct _platform_camera_t {
 
     int iso_fd;
     int iso_handle;
-    struct juju_frame        * frames;
-    unsigned char        * buffer;
+    struct juju_frame * frames;
+    unsigned char * buffer;
     size_t buffer_size;
     uint32_t flags;
     unsigned int num_frames;
@@ -72,9 +73,9 @@ struct _platform_camera_t {
 
 
 struct juju_frame {
-    dc1394video_frame_t                 frame;
-    size_t                         size;
-    struct fw_cdev_iso_packet        *packets;
+    dc1394video_frame_t frame;
+    size_t size;
+    struct fw_cdev_iso_packet *packets;
 };
 
 dc1394error_t

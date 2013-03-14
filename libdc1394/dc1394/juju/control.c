@@ -240,6 +240,8 @@ dc1394_juju_camera_new (platform_t * p, platform_device_t * device, uint32_t uni
     if (get_info.version >= 2)
         camera->header_size = 8;
 
+    camera->kernel_abi_version=get_info.version;
+
     return camera;
 }
 
@@ -556,6 +558,10 @@ dc1394error_t
 juju_iso_allocate (platform_camera_t *cam, uint64_t allowed_channels,
         int bandwidth_units, juju_iso_info **out)
 {
+    // Check kernel ABI version for ISO allocation support 
+    if (cam->kernel_abi_version < 2)
+        return DC1394_FUNCTION_NOT_SUPPORTED;
+
     juju_iso_info *res = add_iso_resource (cam);
     if (!res)
         return DC1394_MEMORY_ALLOCATION_FAILURE;
@@ -568,7 +574,7 @@ juju_iso_allocate (platform_camera_t *cam, uint64_t allowed_channels,
     if (ioctl (cam->fd, FW_CDEV_IOC_ALLOCATE_ISO_RESOURCE, &request) < 0) {
         remove_iso_resource (cam, res);
         if (errno == EINVAL)
-            return DC1394_FUNCTION_NOT_SUPPORTED;
+            return DC1394_INVALID_ARGUMENT_VALUE;
         return DC1394_FAILURE;
     }
     res->handle = request.handle;
@@ -598,6 +604,10 @@ juju_iso_allocate (platform_camera_t *cam, uint64_t allowed_channels,
 dc1394error_t
 juju_iso_deallocate (platform_camera_t *cam, juju_iso_info * res)
 {
+    // Check kernel ABI version for ISO allocation support 
+    if (cam->kernel_abi_version < 2)
+        return DC1394_FUNCTION_NOT_SUPPORTED;
+
     if (res->got_dealloc) {
         dc1394_log_warning ("juju: ISO resource was already released");
         remove_iso_resource (cam, res);
@@ -609,7 +619,7 @@ juju_iso_deallocate (platform_camera_t *cam, juju_iso_info * res)
     };
     if (ioctl (cam->fd, FW_CDEV_IOC_DEALLOCATE_ISO_RESOURCE, &request) < 0) {
         if (errno == EINVAL)
-            return DC1394_FUNCTION_NOT_SUPPORTED;
+            return DC1394_INVALID_ARGUMENT_VALUE;
         return DC1394_FAILURE;
     }
 
