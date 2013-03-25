@@ -377,6 +377,14 @@ usb_dispatch = {
     .capture_enqueue = dc1394_usb_capture_enqueue,
     .capture_get_fileno = dc1394_usb_capture_get_fileno,
     .capture_is_frame_corrupt = dc1394_usb_capture_is_frame_corrupt,
+
+#ifdef HAVE_MACOSX
+    .capture_set_callback = dc1394_usb_capture_set_callback,
+    .capture_schedule_with_runloop = dc1394_usb_capture_schedule_with_runloop,
+#else
+    .capture_set_callback = NULL,
+    .capture_schedule_with_runloop = NULL,
+#endif
 };
 
 void

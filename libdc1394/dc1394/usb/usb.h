@@ -29,9 +29,42 @@
 #include "register.h"
 #include "offsets.h"
 
+#ifdef HAVE_MACOSX
+#include <mach/mach.h>
+#include <CoreFoundation/CoreFoundation.h>
+#include <CoreServices/CoreServices.h>
+#endif
+
 struct _platform_t {
     libusb_context *context;
 };
+
+typedef enum {
+    BUFFER_EMPTY,
+    BUFFER_FILLED,
+    BUFFER_CORRUPT,
+    BUFFER_ERROR,
+} usb_frame_status;
+
+struct usb_frame {
+    dc1394video_frame_t frame;
+    struct libusb_transfer * transfer;
+    platform_camera_t * pcam;
+    usb_frame_status status;
+};
+
+
+#ifdef HAVE_MACOSX
+typedef struct __dc1394_capture
+{
+    CFRunLoopRef             run_loop;
+    CFStringRef              run_loop_mode;
+    dc1394capture_callback_t callback;
+    void *                   callback_user_data;
+    CFSocketRef              socket;
+    CFRunLoopSourceRef       socket_source;
+} dc1394capture_t;
+#endif
 
 struct _platform_camera_t {
     libusb_device_handle * handle;
@@ -59,21 +92,12 @@ struct _platform_camera_t {
 
     int capture_is_set;
     int iso_auto_started;
+
+#ifdef HAVE_MACOSX
+    dc1394capture_t capture;
+#endif
 };
 
-typedef enum {
-    BUFFER_EMPTY,
-    BUFFER_FILLED,
-    BUFFER_CORRUPT,
-    BUFFER_ERROR,
-} usb_frame_status;
-
-struct usb_frame {
-    dc1394video_frame_t frame;
-    struct libusb_transfer * transfer;
-    platform_camera_t * pcam;
-    usb_frame_status status;
-};
 
 
 dc1394error_t
@@ -97,5 +121,15 @@ dc1394_usb_capture_get_fileno (platform_camera_t * craw);
 dc1394bool_t
 dc1394_usb_capture_is_frame_corrupt (platform_camera_t * craw,
         dc1394video_frame_t * frame);
+
+dc1394error_t
+dc1394_usb_capture_set_callback (platform_camera_t * camera,
+        dc1394capture_callback_t callback, void * user_data);
+
+#ifdef HAVE_MACOSX
+int
+dc1394_usb_capture_schedule_with_runloop (platform_camera_t * camera,
+        CFRunLoopRef run_loop, CFStringRef run_loop_mode);
+#endif
 
 #endif

@@ -479,6 +479,8 @@ linux_dispatch = {
     .capture_dequeue = dc1394_linux_capture_dequeue,
     .capture_enqueue = dc1394_linux_capture_enqueue,
     .capture_get_fileno = dc1394_linux_capture_get_fileno,
+    .capture_set_callback = NULL,
+    .capture_schedule_with_runloop = NULL,
 
     .iso_set_persist = dc1394_linux_iso_set_persist,
     .iso_allocate_channel = dc1394_linux_iso_allocate_channel,

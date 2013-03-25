@@ -47,6 +47,13 @@ typedef enum {
 #define DC1394_CAPTURE_POLICY_NUM   (DC1394_CAPTURE_POLICY_MAX - DC1394_CAPTURE_POLICY_MIN + 1)
 
 /**
+* typedef for the callback param for dc1394_capture_set_callback
+*/
+
+typedef void (*dc1394capture_callback_t)(dc1394camera_t *, void *);
+
+
+/**
  * Capture flags. Currently limited to switching automatic functions on/off: channel allocation, bandwidth allocation and automatic
  * starting of ISO transmission
  */
@@ -99,6 +106,12 @@ dc1394error_t dc1394_capture_enqueue(dc1394camera_t * camera, dc1394video_frame_
  */
 dc1394bool_t dc1394_capture_is_frame_corrupt (dc1394camera_t * camera,
         dc1394video_frame_t * frame);
+
+/**
+ * Set a callback if supported by the platform (OS X only for now).
+ */
+void dc1394_capture_set_callback (dc1394camera_t * camera,
+        dc1394capture_callback_t callback, void * user_data);
 
 #ifdef __cplusplus
 }

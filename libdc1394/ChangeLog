@@ -1,3 +1,8 @@
+2013-03-24  David Moore  <david.moore@gmail.com>
+	* Make dc1394_capture_schedule_with_runloop() and
+	dc1394_capture_set_callback() available for USB cameras on Mac OS X.
+	Contributed by Rodolphe Pineau <pineau@rti-zone.org>.
+
 2011-11-15  David Moore  <david.moore@gmail.com>
 	* Update NEWS and version for release 2.1.4.
 

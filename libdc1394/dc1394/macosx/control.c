@@ -394,6 +394,8 @@ macosx_dispatch = {
     .capture_enqueue = dc1394_macosx_capture_enqueue,
     .capture_get_fileno = dc1394_macosx_capture_get_fileno,
     .capture_is_frame_corrupt = dc1394_macosx_capture_is_frame_corrupt,
+    .capture_set_callback = dc1394_macosx_capture_set_callback,
+    .capture_schedule_with_runloop = dc1394_macosx_capture_schedule_with_runloop,
 };
 
 void

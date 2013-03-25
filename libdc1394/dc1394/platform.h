@@ -26,6 +26,12 @@
 #include <stdint.h>
 #include <dc1394/camera.h>
 
+#include "config.h"
+
+#ifdef HAVE_MACOSX
+#include <CoreFoundation/CoreFoundation.h>
+#endif
+
 typedef struct _platform_t platform_t;
 typedef struct _platform_device_t platform_device_t;
 typedef struct _platform_camera_t platform_camera_t;
@@ -81,6 +87,15 @@ typedef struct _platform_dispatch_t {
     dc1394error_t (*iso_release_channel)(platform_camera_t *, int);
     dc1394error_t (*iso_allocate_bandwidth)(platform_camera_t *, int);
     dc1394error_t (*iso_release_bandwidth)(platform_camera_t *, int);
+    dc1394error_t (*capture_set_callback)(platform_camera_t * , dc1394capture_callback_t , void * );
+
+#ifdef HAVE_MACOSX
+    dc1394error_t (*capture_schedule_with_runloop)(platform_camera_t * , CFRunLoopRef , CFStringRef);
+#else
+    dc1394error_t (*capture_schedule_with_runloop)(platform_camera_t *);
+
+#endif
+
 } platform_dispatch_t;
 
 

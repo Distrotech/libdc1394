@@ -41,7 +41,7 @@
 #include "config.h"
 #include "internal.h"
 #include "macosx/macosx.h"
-#include "macosx/capture.h"
+
 
 /**********************/
 /* Internal functions */
@@ -206,7 +206,7 @@ callback (buffer_info * buffer, NuDCLRef dcl)
 }
 
 static void
-socket_callback (CFSocketRef s, CFSocketCallBackType type,
+socket_callback_firewire (CFSocketRef s, CFSocketCallBackType type,
                  CFDataRef address, const void * data, void * info)
 {
     platform_camera_t * craw = info;
@@ -306,9 +306,9 @@ servicing_thread (void * cam_ptr)
     IOFireWireLibDeviceRef d = craw->iface;
 
     (*d)->AddCallbackDispatcherToRunLoopForMode (d, CFRunLoopGetCurrent (),
-                                                 kCFRunLoopDefaultMode);
+                                                 kCFRunLoopCommonModes);
     (*d)->AddIsochCallbackDispatcherToRunLoopForMode (d, CFRunLoopGetCurrent (),
-                                                      kCFRunLoopDefaultMode);
+                                                      kCFRunLoopCommonModes);
 
     MPSignalSemaphore(craw->capture.thread_init_semaphore);
 
@@ -376,15 +376,15 @@ dc1394_macosx_capture_setup(platform_camera_t *craw, uint32_t num_dma_buffers,
     pipe (capture->notify_pipe);
 
     capture->socket = CFSocketCreateWithNative (NULL, capture->notify_pipe[0],
-                                                kCFSocketReadCallBack, socket_callback, &socket_context);
+                                                kCFSocketReadCallBack, socket_callback_firewire, &socket_context);
     /* Set flags so that the underlying fd is not closed with the socket */
     CFSocketSetSocketFlags (capture->socket,
                             CFSocketGetSocketFlags (capture->socket) & ~kCFSocketCloseOnInvalidate);
     capture->socket_source = CFSocketCreateRunLoopSource (NULL,
                                                           capture->socket, 0);
     if (!capture->run_loop)
-        dc1394_capture_schedule_with_runloop (camera,
-                                              CFRunLoopGetCurrent (), kCFRunLoopDefaultMode);
+        dc1394_macosx_capture_schedule_with_runloop (craw,
+                                              CFRunLoopGetCurrent (), kCFRunLoopCommonModes);
     CFRunLoopAddSource (capture->run_loop, capture->socket_source,
                         capture->run_loop_mode);
 
@@ -720,33 +720,28 @@ dc1394_macosx_capture_get_fileno (platform_camera_t * craw)
     return capture->notify_pipe[0];
 }
 
-int
-dc1394_capture_schedule_with_runloop (dc1394camera_t * camera,
+dc1394error_t
+dc1394_macosx_capture_schedule_with_runloop (platform_camera_t * craw,
         CFRunLoopRef run_loop, CFStringRef run_loop_mode)
 {
-    dc1394camera_priv_t * cpriv = DC1394_CAMERA_PRIV (camera);
-    platform_camera_t * craw = cpriv->pcam;
     dc1394capture_t * capture = &(craw->capture);
-
     if (craw->capture_is_set) {
         dc1394_log_warning("schedule_with_runloop must be called before capture_setup");
-        return -1;
+        return DC1394_FAILURE;
     }
 
     capture->run_loop = run_loop;
     capture->run_loop_mode = run_loop_mode;
-    return 0;
+    return DC1394_SUCCESS;
 }
 
-void
-dc1394_capture_set_callback (dc1394camera_t * camera,
+dc1394error_t
+dc1394_macosx_capture_set_callback (platform_camera_t * craw,
                              dc1394capture_callback_t callback, void * user_data)
 {
-    dc1394camera_priv_t * cpriv = DC1394_CAMERA_PRIV (camera);
-    platform_camera_t * craw = cpriv->pcam;
     dc1394capture_t * capture = &(craw->capture);
-
     capture->callback = callback;
     capture->callback_user_data = user_data;
+    return DC1394_SUCCESS;
 }
 

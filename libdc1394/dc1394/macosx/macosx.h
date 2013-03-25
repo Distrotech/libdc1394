@@ -20,11 +20,10 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __DC1394_MACOSX_H__
-#define __DC1394_MACOSX_H__
+#ifndef __DC1394_MACOSX_MACOSX_H__
+#define __DC1394_MACOSX_MACOSX_H__
 
 #include <dc1394/dc1394.h>
-#include "macosx/capture.h"
 #include <IOKit/firewire/IOFireWireLib.h>
 #include <CoreServices/CoreServices.h>
 
@@ -122,5 +121,13 @@ dc1394_macosx_capture_is_frame_corrupt (platform_camera_t * craw,
         dc1394video_frame_t * frame);
 int
 dc1394_macosx_capture_get_fileno (platform_camera_t * craw);
+
+dc1394error_t
+dc1394_macosx_capture_set_callback (platform_camera_t * camera,
+        dc1394capture_callback_t callback, void * user_data);
+
+dc1394error_t
+dc1394_macosx_capture_schedule_with_runloop (platform_camera_t * camera,
+        CFRunLoopRef run_loop, CFStringRef run_loop_mode);
 
 #endif

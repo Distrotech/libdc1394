@@ -683,6 +683,8 @@ juju_dispatch = {
     .capture_dequeue = dc1394_juju_capture_dequeue,
     .capture_enqueue = dc1394_juju_capture_enqueue,
     .capture_get_fileno = dc1394_juju_capture_get_fileno,
+    .capture_set_callback = NULL,
+    .capture_schedule_with_runloop = NULL,
 
     //.iso_allocate_channel = dc1394_juju_iso_allocate_channel,
 };

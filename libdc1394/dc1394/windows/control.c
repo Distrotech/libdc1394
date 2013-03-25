@@ -414,6 +414,8 @@ windows_dispatch = {
     .iso_release_channel = dc1394_windows_iso_release_channel,
     .iso_allocate_bandwidth = dc1394_windows_iso_allocate_bandwidth,
     .iso_release_bandwidth = dc1394_windows_iso_release_bandwidth,
+    .capture_set_callback = NULL,
+    .capture_schedule_with_runloop = NULL,
 };
 
 void

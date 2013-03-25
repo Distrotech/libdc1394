@@ -37,6 +37,7 @@ endif
   JUJU_LIBADD = juju/libdc1394-juju.la
 endif
 if HAVE_MACOSX
+  libdc1394_la_SOURCES += macosx.c
   MACOSX_LIBADD = macosx/libdc1394-macosx.la
 endif
 if HAVE_WINDOWS
@@ -68,3 +69,7 @@ pkginclude_HEADERS =  	\
 	register.h    	\
 	log.h	      	\
 	iso.h
+
+if HAVE_MACOSX
+  pkginclude_HEADERS += macosx.h
+endif

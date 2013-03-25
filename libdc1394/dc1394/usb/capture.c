@@ -26,7 +26,9 @@
 #include <inttypes.h>
 #include <pthread.h>
 #include <unistd.h>
-
+#ifdef HAVE_MACOSX
+#include <CoreFoundation/CoreFoundation.h>
+#endif
 #include "usb/usb.h"
 
 /* Callback whenever a bulk transfer finishes. */
@@ -63,6 +65,19 @@ callback (struct libusb_transfer * transfer)
         // we may need to set the status to BUFFER_ERROR here
     }
 }
+
+#ifdef HAVE_MACOSX
+static void
+socket_callback_usb (CFSocketRef s, CFSocketCallBackType type,
+                 CFDataRef address, const void * data, void * info)
+{
+    platform_camera_t * craw = info;
+    dc1394capture_t * capture = &(craw->capture);
+    if (capture->callback) {
+        capture->callback (craw->camera, capture->callback_user_data);
+    }
+}
+#endif
 
 static void *
 capture_thread (void * arg)
@@ -109,11 +124,15 @@ dc1394_usb_capture_setup(platform_camera_t *craw, uint32_t num_dma_buffers,
     int i;
     dc1394camera_t * camera = craw->camera;
 
+#ifdef HAVE_MACOSX
+    dc1394capture_t * capture = &(craw->capture);
+    CFSocketContext socket_context = { 0, craw, NULL, NULL, NULL };
+#endif
+
     // if capture is already set, abort
     if (craw->capture_is_set > 0)
         return DC1394_CAPTURE_IS_RUNNING;
 
-    craw->capture_is_set = 1;
 
     if (flags & DC1394_CAPTURE_FLAGS_DEFAULT)
         flags = DC1394_CAPTURE_FLAGS_CHANNEL_ALLOC |
@@ -131,6 +150,23 @@ dc1394_usb_capture_setup(platform_camera_t *craw, uint32_t num_dma_buffers,
         dc1394_usb_capture_stop (craw);
         return DC1394_FAILURE;
     }
+
+#ifdef HAVE_MACOSX
+    capture->socket = CFSocketCreateWithNative (NULL, craw->notify_pipe[0],
+                                                kCFSocketReadCallBack, socket_callback_usb, &socket_context);
+    /* Set flags so that the underlying fd is not closed with the socket */
+    CFSocketSetSocketFlags (capture->socket,
+                            CFSocketGetSocketFlags (capture->socket) & ~kCFSocketCloseOnInvalidate);
+    capture->socket_source = CFSocketCreateRunLoopSource (NULL,
+                                                          capture->socket, 0);
+    if (!capture->run_loop)
+        dc1394_usb_capture_schedule_with_runloop (craw,
+                                              CFRunLoopGetCurrent (), kCFRunLoopCommonModes);
+    CFRunLoopAddSource (capture->run_loop, capture->socket_source,
+                        capture->run_loop_mode);
+#endif
+
+    craw->capture_is_set = 1;
 
     dc1394_log_debug ("usb: Frame size is %"PRId64, proto.total_bytes);
 
@@ -231,6 +267,9 @@ dc1394_usb_capture_stop(platform_camera_t *craw)
 {
     dc1394camera_t * camera = craw->camera;
     int i;
+#ifdef HAVE_MACOSX
+    dc1394capture_t * capture = &(craw->capture);
+#endif
 
     if (craw->capture_is_set == 0)
         return DC1394_CAPTURE_IS_NOT_SET;
@@ -273,6 +312,21 @@ dc1394_usb_capture_stop(platform_camera_t *craw)
         libusb_exit (craw->thread_context);
         craw->thread_context = NULL;
     }
+
+#ifdef HAVE_MACOSX
+    if (capture->socket_source) {
+        CFRunLoopRemoveSource (capture->run_loop, capture->socket_source,
+                               capture->run_loop_mode);
+        CFRelease (capture->socket_source);
+    }
+    capture->socket_source = NULL;
+
+    if (capture->socket) {
+        CFSocketInvalidate (capture->socket);
+        CFRelease (capture->socket);
+    }
+    capture->socket = NULL;
+#endif
 
     if (craw->frames) {
         for (i = 0; i < craw->num_frames; i++) {
@@ -398,3 +452,30 @@ dc1394_usb_capture_is_frame_corrupt (platform_camera_t * craw,
     return DC1394_FALSE;
 }
 
+
+#ifdef HAVE_MACOSX
+dc1394error_t
+dc1394_usb_capture_schedule_with_runloop (platform_camera_t * craw,
+        CFRunLoopRef run_loop, CFStringRef run_loop_mode)
+{
+    dc1394capture_t * capture = &(craw->capture);
+    if (craw->capture_is_set) {
+        dc1394_log_warning("schedule_with_runloop must be called before capture_setup");
+        return DC1394_FAILURE;
+    }
+
+    capture->run_loop = run_loop;
+    capture->run_loop_mode = run_loop_mode;
+    return DC1394_SUCCESS;
+}
+
+dc1394error_t
+dc1394_usb_capture_set_callback (platform_camera_t * craw,
+                             dc1394capture_callback_t callback, void * user_data)
+{
+    dc1394capture_t * capture = &(craw->capture);
+    capture->callback = callback;
+    capture->callback_user_data = user_data;
+    return DC1394_SUCCESS;
+}
+#endif

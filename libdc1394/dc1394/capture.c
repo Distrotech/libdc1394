@@ -88,3 +88,15 @@ dc1394_capture_is_frame_corrupt (dc1394camera_t * camera,
         return DC1394_FALSE;
     return d->capture_is_frame_corrupt (cpriv->pcam, frame);
 }
+
+void
+dc1394_capture_set_callback (dc1394camera_t * camera,
+        dc1394capture_callback_t callback, void * user_data)
+{
+    dc1394camera_priv_t * cpriv = DC1394_CAMERA_PRIV (camera);
+    const platform_dispatch_t * d = cpriv->platform->dispatch;
+    if (!d->capture_set_callback)
+        return;
+    d->capture_set_callback (cpriv->pcam, callback, user_data);
+}
+
