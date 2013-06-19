@@ -73,7 +73,8 @@ static struct _vendor_product_t {
     { 0x1e10, 0x2003 }, // Point Grey High Res Firefly MV Mono
     { 0x1e10, 0x2004 }, // Point Grey Chameleon Color
     { 0x1e10, 0x2005 }, // Point Grey Chameleon Mono
-    { 0, 0 },
+    { 0x1e10, 0x3000 }, // Point Grey Flea 3
+    { 0, 0 }
 };
 
 static int
