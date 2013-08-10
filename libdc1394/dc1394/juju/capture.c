@@ -177,7 +177,7 @@ dc1394_juju_capture_setup(platform_camera_t *craw, uint32_t num_dma_buffers,
     create.type = FW_CDEV_ISO_CONTEXT_RECEIVE;
     create.header_size = craw->header_size;
     create.channel = craw->iso_channel;
-    create.speed = SCODE_400;
+    // create.speed = SCODE_400; // not necessary: ignored by kernel for ISO reception.
     err = DC1394_IOCTL_FAILURE;
     if (ioctl(craw->iso_fd, FW_CDEV_IOC_CREATE_ISO_CONTEXT, &create) < 0) {
         dc1394_log_error("failed to create iso context");
