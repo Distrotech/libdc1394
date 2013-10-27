@@ -35,6 +35,10 @@
 #include "config.h"
 #include "log.h"
 
+#ifdef __MINGW32__
+#include <unistd.h>
+#endif
+
 /*==========================================================================
  * This function implements the handshaking available (and sometimes required)
  * on some cameras that comply with the IIDC specs v1.30. Thanks to Yasutoshi

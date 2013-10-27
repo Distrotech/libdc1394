@@ -35,6 +35,11 @@
 #include <CoreServices/CoreServices.h>
 #endif
 
+#ifdef __MINGW32__
+#define pipe(fd)  _pipe(fd, 4096, 0)
+#endif
+#include <pthread.h>
+
 struct _platform_t {
     libusb_context *context;
 };
