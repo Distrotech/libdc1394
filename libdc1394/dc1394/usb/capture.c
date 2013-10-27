@@ -33,7 +33,7 @@
 
 /* Callback whenever a bulk transfer finishes. */
 static void
-callback (struct libusb_transfer * transfer)
+LIBSUB_CALL callback (struct libusb_transfer * transfer)
 {
     struct usb_frame * f = transfer->user_data;
     platform_camera_t * craw = f->pcam;
