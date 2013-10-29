@@ -33,12 +33,12 @@
 
 // LIBUSB_CALL only defined for latest libusb versions.
 #ifndef LIBUSB_CALL
-#define LIBSUB_CALL
+#define LIBUSB_CALL
 #endif
 
 /* Callback whenever a bulk transfer finishes. */
 static void
-LIBSUB_CALL callback (struct libusb_transfer * transfer)
+LIBUSB_CALL callback (struct libusb_transfer * transfer)
 {
     struct usb_frame * f = transfer->user_data;
     platform_camera_t * craw = f->pcam;
