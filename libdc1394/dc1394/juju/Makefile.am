@@ -7,7 +7,7 @@ noinst_LTLIBRARIES = libdc1394-juju.la
 pkgjujuinclude_HEADERS = 
 endif
 
-AM_CFLAGS = -I$(top_srcdir)/dc1394
+AM_CFLAGS = -I$(top_srcdir) -I$(top_srcdir)/dc1394
 libdc1394_juju_la_SOURCES =  \
 	control.c \
 	capture.c \
