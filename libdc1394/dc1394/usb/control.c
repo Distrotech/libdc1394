@@ -74,6 +74,8 @@ static struct _vendor_product_t {
     { 0x1e10, 0x2004 }, // Point Grey Chameleon Color
     { 0x1e10, 0x2005 }, // Point Grey Chameleon Mono
     { 0x1e10, 0x3000 }, // Point Grey Flea 3
+    { 0x1e10, 0x3005 }, // Point Grey Flea 3 (FL3-U3-13Y3M)
+    { 0x1e10, 0x300a }, // Point Grey Flea 3 (FL3-U3-13E4C)
     { 0, 0 }
 };
 
