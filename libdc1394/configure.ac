@@ -26,6 +26,7 @@ DX_PS_FEATURE(OFF)
 #
 DX_INIT_DOXYGEN([libdc1394], [Doxyfile.in])
 #
+AM_PROG_AR
 AM_INIT_AUTOMAKE([--warnings=all 1.9.6])
 AC_CONFIG_HEADERS([config.h])
 
