@@ -18,3 +18,5 @@ aclocal.m4
 compile
 autom4te.cache/
 m4
+libdc1394-*.tar.gz
+ar-lib
