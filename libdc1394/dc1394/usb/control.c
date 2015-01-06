@@ -81,6 +81,7 @@ static struct _vendor_product_t {
     { 0x1e10, 0x300b }, // Point Grey Flea 3 (FL3-U3-13E4M with 1.43.3.2 FW)
     { 0x1e10, 0x3103 }, // Point Grey Flea 3 (GS3-U3-23S6M)
     { 0x1e10, 0x3300 }, // Point Grey Flea 3 (FL3-U3-13E4M with 2.7.3.0 FW)
+	{ 0x1e10, 0x3800 }, // Point Grey Ladybug 5 (LD5-U3-51S5C-44)
     { 0, 0 }
 };
 
