@@ -4,7 +4,7 @@ AM_CPPFLAGS = -I$(top_srcdir)
 
 A = grab_gray_image grab_partial_image grab_color_image \
 	grab_color_image2 helloworld ladybug grab_partial_pvn \
-	basler_sff_info basler_sff_extended_data
+	basler_sff_info basler_sff_extended_data ladybug5capture
 B = dc1394_reset_bus
 
 if HAVE_LIBSDL
@@ -44,6 +44,8 @@ LDADD = ../dc1394/libdc1394.la
 helloworld_SOURCES = helloworld.c
 
 ladybug_SOURCES = ladybug.c
+
+ladybug5capture_SOURCES = ladybug5capture.c
 
 grab_gray_image_SOURCES = grab_gray_image.c
 
