@@ -26,6 +26,7 @@
 #include <inttypes.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <sys/time.h>
 #ifdef HAVE_MACOSX
 #include <CoreFoundation/CoreFoundation.h>
 #endif
@@ -40,6 +41,13 @@
 static void
 LIBUSB_CALL callback (struct libusb_transfer * transfer)
 {
+	// Get a software timestamp as soon as possible in this callback. Note that this timestamp
+	// is not as accurate as the bus timestamp we get with the IEEE1394 interface. For more
+	// accurate timings, consider using either a hardware external trigger or the camera
+	// timestamps that can be inserted within the video frame (see Point Grey documentation)
+	struct timeval filltime;
+	gettimeofday(&filltime,NULL);
+
     struct usb_frame * f = transfer->user_data;
     platform_camera_t * craw = f->pcam;
 
@@ -62,6 +70,7 @@ LIBUSB_CALL callback (struct libusb_transfer * transfer)
 
     pthread_mutex_lock (&craw->mutex);
     f->status = status;
+	f->frame.timestamp = filltime.tv_sec*1000000 + filltime.tv_usec;
     craw->frames_ready++;
     pthread_mutex_unlock (&craw->mutex);
 
