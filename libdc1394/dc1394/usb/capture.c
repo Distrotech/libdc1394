@@ -116,6 +116,44 @@ capture_thread (void * arg)
     return NULL;
 }
 
+static int
+find_interface (libusb_device * usb_dev, uint8_t endpoint_address)
+{
+    struct libusb_device_descriptor usb_desc;
+    struct libusb_config_descriptor * config_desc;
+    int ret;
+    int i, a, e;
+    uint8_t ea;
+
+    ret = libusb_get_device_descriptor(usb_dev, &usb_desc);
+
+    if (ret < 0) {
+        dc1394_log_error ("usb: Failed to get device descriptor");
+        return DC1394_FAILURE;
+    }
+
+    if (usb_desc.bNumConfigurations) {
+        ret = libusb_get_active_config_descriptor (usb_dev, &config_desc);
+        if (ret) {
+            dc1394_log_error ("usb: Failed to get config descriptor");
+            return DC1394_FAILURE;
+        }
+
+        for (i = 0; i < config_desc->bNumInterfaces; i++) {
+            for (a = 0; a < config_desc->interface[i].num_altsetting; a++) {
+                for (e = 0; e < config_desc->interface[i].altsetting[a].bNumEndpoints; e++) {
+                    ea = config_desc->interface[i].altsetting[a].endpoint[e].bEndpointAddress;
+                    // Return the interface number for the first suitable interface
+                    if (ea == endpoint_address)
+                        return i;
+                }
+            }
+        }
+    }
+
+    return DC1394_FAILURE;
+}
+
 static dc1394error_t
 init_frame(platform_camera_t *craw, int index, dc1394video_frame_t *proto)
 {
@@ -235,7 +273,14 @@ dc1394_usb_capture_setup(platform_camera_t *craw, uint32_t num_dma_buffers,
     }
     libusb_free_device_list (list, 1);
 
-    if (libusb_claim_interface (craw->thread_handle, 0) < 0) {
+	// Point Grey uses endpoint 0x81, but other manufacturers or models may use another endpoint
+    int usb_interface = find_interface (libusb_get_device(craw->thread_handle), 0x81);
+    if (usb_interface == DC1394_FAILURE) {
+        dc1394_log_error ("usb: capture thread failed to find suitable interface on device");
+        dc1394_usb_capture_stop (craw);
+        return DC1394_FAILURE;
+    }
+    if (libusb_claim_interface (craw->thread_handle, usb_interface) < 0) {
         dc1394_log_error ("usb: capture thread failed to claim interface");
         dc1394_usb_capture_stop (craw);
         return DC1394_FAILURE;
